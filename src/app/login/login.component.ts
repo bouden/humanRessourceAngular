@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 
 import { AuthService } from '../auth/auth.service';
-import { TokenStorageService } from '../auth/token-storage.service';
 import { AuthLoginInfo } from '../auth/login-info';
+import {InfoService} from '../auth/info.service';
 
 @Component({
   selector: 'app-login',
@@ -17,12 +17,12 @@ export class LoginComponent implements OnInit {
   roles: string[] = [];
   private loginInfo: AuthLoginInfo;
 
-  constructor(private authService: AuthService, private tokenStorage: TokenStorageService) { }
+  constructor(private authService: AuthService , private  info: InfoService) { }
 
   ngOnInit() {
-    if (this.tokenStorage.getToken()) {
+     {
       this.isLoggedIn = true;
-      this.roles = this.tokenStorage.getAuthorities();
+      this.roles = this.info.getAuthorities();
     }
   }
 
@@ -35,13 +35,12 @@ export class LoginComponent implements OnInit {
 
     this.authService.attemptAuth(this.loginInfo).subscribe(
       data => {
-        this.tokenStorage.saveToken(data.accessToken);
-        this.tokenStorage.saveUsername(data.username);
-        this.tokenStorage.saveAuthorities(data.authorities);
+        this.info.saveUsername(data.username);
+        this.info.saveAuthorities(data.authorities);
 
         this.isLoginFailed = false;
         this.isLoggedIn = true;
-        this.roles = this.tokenStorage.getAuthorities();
+        this.roles = this.info.getAuthorities();
         this.reloadPage();
       },
       error => {
@@ -55,4 +54,5 @@ export class LoginComponent implements OnInit {
   reloadPage() {
     window.location.reload();
   }
+
 }
